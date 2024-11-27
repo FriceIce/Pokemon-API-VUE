@@ -1,0 +1,80 @@
+<script setup lang="ts">
+import { ref, watchEffect } from 'vue'
+import type { PokemonReference, AllPokemons } from '@/definitions'
+import PokemonAPI from '@/hooks/PokemonAPI'
+import axios from 'axios'
+import SearchSaveButton from './SearchSaveButton.vue'
+
+const pokemons = ref<Array<PokemonReference>>([])
+
+watchEffect(async () => {
+  try {
+    const response = await axios<AllPokemons>({
+      method: 'get',
+      url: 'https://pokeapi.co/api/v2/pokemon',
+    })
+
+    if (response.data.results.length === 0) {
+      // error message here
+      console.log('No pokemons found')
+      return
+    }
+
+    const fetchPokemonImages = () => {
+      const pokemonCards = response.data.results.map((pokemon) => {
+        return PokemonAPI.getPokemonByName(pokemon.name) // Fetch more information about every card
+      })
+
+      Promise.all(pokemonCards).then((data) => {
+        const images = data.map(
+          (pokemon) =>
+            pokemon.sprites.other?.['official-artwork'].front_default ??
+            pokemon.sprites.front_default,
+        )
+
+        console.log(images)
+
+        pokemons.value = response.data.results.map((pokemon, index) => {
+          return { ...pokemon, image: String(images[index]) }
+        })
+      })
+    }
+
+    fetchPokemonImages()
+
+    console.log(response.data)
+  } catch (error) {
+    console.log(error)
+  }
+})
+</script>
+
+<template>
+  <ul v-if="pokemons.length !== 0" class="pokemonGrid gap-x-1 gap-y-4">
+    <li v-for="(pokemon, index) in pokemons" :key="index" :class="{ 'space-y-2 lg:pb-3': true }">
+      <div class="h-[200px]">
+        <img
+          :src="pokemon.image"
+          alt="pokemon card"
+          class="size-full object-contain object-center bg-[#f2f2f2] rounded-l"
+        />
+      </div>
+      <div class="px-2">
+        <div class="flex items-center gap-3">
+          <p class="text-sm lg:text-xl font-semibold capitalize">{{ pokemon.name }}</p>
+          <SearchSaveButton :pokemon-name="pokemon.name" />
+        </div>
+      </div>
+    </li>
+  </ul>
+</template>
+
+<style scoped>
+.pokemonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  width: 80%;
+  margin-inline: auto;
+  /* border: black 1px solid; */
+}
+</style>
