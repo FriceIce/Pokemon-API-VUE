@@ -1,12 +1,37 @@
 <script setup lang="ts">
-import { ref, defineProps } from 'vue'
+import type { PokemonReference } from '@/definitions'
+import { ref, onMounted } from 'vue'
 
-const { pokemonName } = defineProps<{ pokemonName: string }>()
+const { pokemonObj, savedPokemonCards } = defineProps<{
+  pokemonObj: PokemonReference
+  savedPokemonCards: PokemonReference[]
+}>()
 
 const saveButton = ref<boolean>(false)
 
+// onMounted method to check if pokemon card is already saved.
+onMounted(() => {
+  if (savedPokemonCards.length > 0) {
+    savedPokemonCards.forEach((pokemonCard) => {
+      if (pokemonCard.name === pokemonObj.name) saveButton.value = true
+    })
+  }
+})
+
+// Save or remove card from localStorage
 const toggleSaveButton = () => {
-  console.log('Toggle save button for', pokemonName)
+  if (!saveButton.value) {
+    console.log('saving...')
+    savedPokemonCards.push(pokemonObj)
+    localStorage.setItem('savedPokemonCards', JSON.stringify(savedPokemonCards))
+  }
+
+  if (saveButton.value) {
+    console.log('deleting...')
+    const updatedList = savedPokemonCards.filter((card) => card.name !== pokemonObj.name)
+    localStorage.setItem('savedPokemonCards', JSON.stringify(updatedList))
+  }
+
   saveButton.value = !saveButton.value
 }
 </script>
