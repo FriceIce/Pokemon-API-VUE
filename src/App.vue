@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
 import Header from '@/components/Header.vue'
+import { RouterView } from 'vue-router'
+import { store } from './store'
+
+// fetchList will fetch the favorites list and check for value.
+store.fetchList()
 </script>
 
 <template>
