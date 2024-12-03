@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import type { PokemonReference } from '@/definitions'
-import { default as PokemonAPI, default as pokemonAPI } from '@/hooks/PokemonAPI'
+import usePokemonAPI from '@/hooks/usePokemonAPI'
 import { store } from '@/store'
 import { computed, ref, watchEffect } from 'vue'
 import SearchSaveButton from './SearchSaveButton.vue'
+import ErrorComponet from './ErrorComponet.vue'
+import SpinnerComponent from '@/components/SpinnerComponent.vue'
+import axios from 'axios'
 
 const pokemons = ref<Array<PokemonReference>>([])
 const input = ref<string>('')
+const isError = ref<boolean>(false)
+const errorStatus = ref<number | undefined>(200)
+const isLoading = ref<boolean>(true)
 
 // The varible filteredPokemons is using the computed method to adjust the "pokemons" list after the users input before displaying it on the screen.
 const filteredPokemons = computed(() => {
@@ -22,55 +28,64 @@ const filteredPokemons = computed(() => {
 // Fetching the Pokémons
 watchEffect(async () => {
   try {
-    const response = await pokemonAPI.listPokemons(0, 20)
+    const response = await usePokemonAPI.listPokemons(0, 20)
 
     if (response.results.length === 0) {
-      // error message here
+      // console error message on empty list
       console.log('No pokemons found')
       return
     }
 
     const fetchMorePokemonInfo = () => {
       const pokemonCards = response.results.map((pokemon) => {
-        return PokemonAPI.getPokemonByName(pokemon.name) // Fetch more information about every card
+        return usePokemonAPI.getPokemonByName(pokemon.name) // Fetch more information about every card
       })
 
       // Using Promise.all() to gather all the promises in PokemonCards varible and collectivly return the results when all the fetches are successfull.
-      Promise.all(pokemonCards).then((data) => {
-        const images = data.map(
-          (pokemon) =>
-            pokemon.sprites.other?.['official-artwork'].front_default ??
-            pokemon.sprites.front_default,
-        )
+      Promise.all(pokemonCards)
+        .then((data) => {
+          const images = data.map(
+            (pokemon) =>
+              pokemon.sprites.other?.['official-artwork'].front_default ??
+              pokemon.sprites.front_default,
+          )
 
-        const tags = data.map((pokemon) => {
-          return {
-            name: pokemon.name,
-            tags: pokemon.types.map((tag) => tag.type.name),
+          const tags = data.map((pokemon) => {
+            return {
+              name: pokemon.name,
+              tags: pokemon.types.map((tag) => tag.type.name),
+            }
+          })
+
+          // Adding value to the pokemons list with extra properties as image and types.
+          pokemons.value = response.results.map((pokemon, index) => {
+            return { ...pokemon, image: String(images[index]), types: tags[index] }
+          }) as PokemonReference[]
+
+          isLoading.value = false
+        })
+        .catch((error) => {
+          // The usePokmonAPI hook is using axios wich is the reason for the .isAxiosError method.
+          if (axios.isAxiosError(error)) {
+            isError.value = true
+            errorStatus.value = error.status
           }
         })
-
-        // Adding value to the pokemons list with extra properties as image and types.
-        pokemons.value = response.results.map((pokemon, index) => {
-          return { ...pokemon, image: String(images[index]), types: tags[index] }
-        }) as PokemonReference[]
-      })
     }
 
     fetchMorePokemonInfo()
-
-    console.log(response.results)
   } catch (error) {
     console.log(error)
   }
 })
-
-console.log(pokemons)
 </script>
 
 <template>
   <section class="p-4 space-y-4">
-    <form class="space-x-2">
+    <ErrorComponet v-if="isError" :status="errorStatus" />
+    <SpinnerComponent v-if="isLoading" />
+
+    <form v-if="!isError" class="space-x-2">
       <input
         v-model="input"
         type="text"
@@ -81,7 +96,7 @@ console.log(pokemons)
       <button class="bg-yellow-400 px-6 py-[8.5px] rounded cursor-pointer">Search</button>
     </form>
 
-    <ul v-if="pokemons.length !== 0" class="pokemonGrid">
+    <ul v-if="pokemons.length !== 0 && !isError && !isLoading" class="pokemonGrid">
       <li
         v-for="(pokemon, index) in filteredPokemons"
         :key="index"
