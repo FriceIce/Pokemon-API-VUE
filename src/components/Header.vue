@@ -10,14 +10,14 @@ import { RouterLink } from 'vue-router'
     <nav class="flex gap-2">
       <RouterLink
         to="/"
-        class="text-sm md:text-lg lg:text-xl font-semibold text-white px-0 py-0 md:px-4 md:py-1 rounded-xl lg:hover:bg-gray-700 lg:hover:shadow transition-all"
+        :class="{ 'text-sm md:text-lg lg:text-xl font-semibold text-white transition-all': true }"
       >
         Search
       </RouterLink>
 
       <RouterLink
         to="/favorites"
-        class="text-sm md:text-lg lg:text-xl font-semibold text-white px-0 md:-0 md:px-4 md:py-1 rounded-xl lg:hover:bg-gray-700 lg:hover:shadow transition-all"
+        :class="{ 'text-sm md:text-lg lg:text-xl font-semibold text-white transition-all': true }"
       >
         Favorites
       </RouterLink>
