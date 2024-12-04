@@ -69,6 +69,7 @@ watchEffect(async () => {
           if (axios.isAxiosError(error)) {
             isError.value = true
             errorStatus.value = error.status
+            isLoading.value = false
           }
         })
     }
@@ -83,7 +84,6 @@ watchEffect(async () => {
 <template>
   <section class="p-4 space-y-4">
     <ErrorComponet v-if="isError" :status="errorStatus" />
-    <SpinnerComponent v-if="isLoading" />
 
     <form v-if="!isError" class="space-x-2">
       <input
@@ -96,6 +96,7 @@ watchEffect(async () => {
       <button class="bg-yellow-400 px-6 py-[8.5px] rounded cursor-pointer">Search</button>
     </form>
 
+    <SpinnerComponent v-if="isLoading" />
     <ul v-if="pokemons.length !== 0 && !isError && !isLoading" class="pokemonGrid">
       <li
         v-for="(pokemon, index) in filteredPokemons"
