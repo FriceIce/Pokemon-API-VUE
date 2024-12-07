@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import usePokemonAPI from '@/hooks/usePokemonAPI'
+import SpinnerComponent from '@/components/SpinnerComponent.vue'
+import { fetchPokemons } from '@/modules/fetchPokemons'
 import { usePokemonStore } from '@/stores/savedPokemonStore'
 import { computed, ref, watchEffect } from 'vue'
-import SearchSaveButton from './SearchSaveButton.vue'
 import ErrorComponet from './ErrorComponet.vue'
-import SpinnerComponent from '@/components/SpinnerComponent.vue'
-import axios from 'axios'
+import SearchSaveButton from './SearchSaveButton.vue'
 
 const pokemonStore = usePokemonStore()
 const pokemons = ref<Array<PokemonReference>>([])
@@ -13,6 +12,7 @@ const input = ref<string>('')
 const isError = ref<boolean>(false)
 const errorStatus = ref<number | undefined>(200)
 const isLoading = ref<boolean>(true)
+const offset = ref<number>(0)
 
 // The varible filteredPokemons is using the computed method to adjust the "pokemons" list after the users input before displaying it on the screen.
 const filteredPokemons = computed(() => {
@@ -25,72 +25,22 @@ const filteredPokemons = computed(() => {
   )
 })
 
-// Fetching the Pokémons
-watchEffect(async () => {
-  try {
-    const response = await usePokemonAPI.listPokemons(0, 20)
-
-    if (response.results.length === 0) {
-      // console error message on empty list
-      console.log('No pokemons found')
-      return
-    }
-
-    const fetchMorePokemonInfo = () => {
-      const pokemonCards = response.results.map((pokemon) => {
-        return usePokemonAPI.getPokemonByName(pokemon.name) // Fetch more information about every card
-      })
-
-      // Using Promise.all() to gather all the promises in PokemonCards varible and collectivly return the results when all the fetches are successfull.
-      Promise.all(pokemonCards)
-        .then((data) => {
-          const images = data.map(
-            (pokemon) =>
-              pokemon.sprites.other?.['official-artwork'].front_default ??
-              pokemon.sprites.front_default,
-          )
-
-          const tags = data.map((pokemon) => {
-            return {
-              name: pokemon.name,
-              tags: pokemon.types.map((tag) => tag.type.name),
-            }
-          })
-
-          // Adding value to the pokemons list with extra properties as image and types.
-          pokemons.value = response.results.map((pokemon, index) => {
-            return { ...pokemon, image: String(images[index]), types: tags[index] }
-          }) as PokemonReference[]
-
-          isLoading.value = false
-        })
-        .catch((error) => {
-          // The usePokmonAPI hook is using axios wich is the reason for the .isAxiosError method.
-          if (axios.isAxiosError(error)) {
-            isError.value = true
-            errorStatus.value = error.status
-            isLoading.value = false
-          }
-        })
-    }
-
-    fetchMorePokemonInfo()
-  } catch (error) {
-    console.log(error)
-  }
+// Module for fetching a list of Pokémons
+watchEffect(() => {
+  fetchPokemons(pokemons, isLoading, isError, errorStatus, offset.value, 20)
 })
 </script>
 
 <template>
-  <section class="p-4 space-y-4">
+  <section class="p-4 pb-10 space-y-10">
     <ErrorComponet v-if="isError" :status="errorStatus" />
 
-    <form v-if="!isError" class="space-x-2">
+    <form v-if="!isError" class="space-x-2 flex">
       <input
         v-model="input"
         type="text"
         placeholder="Search for Pokémon"
-        class="border h-[40px] max-w-[400px] w-[90%] px-3 rounded"
+        class="border h-[41px] max-w-[400px] flex-1 px-3 rounded"
       />
 
       <button class="bg-yellow-400 px-6 py-[8.5px] rounded cursor-pointer">Search</button>
@@ -129,6 +79,14 @@ watchEffect(async () => {
         </div>
       </li>
     </ul>
+    <div class="flex justify-center">
+      <button
+        class="bg-[#36c6ff] px-4 py-[12px] text-white font-bold rounded cursor-pointer outline-none lg:hover:shadow-md"
+        @click="(offset += 20)"
+      >
+        Load more Pokémon
+      </button>
+    </div>
   </section>
 </template>
 
