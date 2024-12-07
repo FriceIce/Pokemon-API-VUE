@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { PokemonReference } from '@/definitions'
 import usePokemonAPI from '@/hooks/usePokemonAPI'
-import { store } from '@/store'
+import { usePokemonStore } from '@/stores/savedPokemonStore'
 import { computed, ref, watchEffect } from 'vue'
 import SearchSaveButton from './SearchSaveButton.vue'
 import ErrorComponet from './ErrorComponet.vue'
 import SpinnerComponent from '@/components/SpinnerComponent.vue'
 import axios from 'axios'
 
+const pokemonStore = usePokemonStore()
 const pokemons = ref<Array<PokemonReference>>([])
 const input = ref<string>('')
 const isError = ref<boolean>(false)
@@ -113,7 +113,10 @@ watchEffect(async () => {
         <div class="space-y-2 px-2">
           <div class="flex items-center gap-3">
             <p class="text-sm lg:text-xl font-semibold capitalize">{{ pokemon.name }}</p>
-            <SearchSaveButton :pokemon-obj="pokemon" :savedPokemonCards="store.savedPokemonCards" />
+            <SearchSaveButton
+              :pokemon-obj="pokemon"
+              :savedPokemonCards="pokemonStore.savedPokemonCards"
+            />
           </div>
           <div class="flex gap-2">
             <p

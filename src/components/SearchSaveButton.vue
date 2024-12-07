@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { PokemonReference } from '@/definitions'
 import { ref, onMounted, watchEffect } from 'vue'
-import { store } from '@/store'
+import { usePokemonStore } from '@/stores/savedPokemonStore'
 
+const pokemonStore = usePokemonStore()
 const { pokemonObj, savedPokemonCards } = defineProps<{
   pokemonObj: PokemonReference
   savedPokemonCards: PokemonReference[]
@@ -45,7 +45,7 @@ const toggleSaveButton = () => {
     updatedList = savedPokemonCards.filter((card) => card.name !== pokemonObj.name)
   }
 
-  store.updateList(updatedList)
+  pokemonStore.updateList(updatedList)
   saveButton.value = updatedList.some((card) => card.name === pokemonObj.name)
 }
 </script>
