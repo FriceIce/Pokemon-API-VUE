@@ -5,6 +5,7 @@ import { usePokemonStore } from '@/stores/savedPokemonStore'
 import { computed, ref, watchEffect } from 'vue'
 import ErrorComponet from './ErrorComponet.vue'
 import SearchSaveButton from './SearchSaveButton.vue'
+import { pokemonTags } from '@/assets/tags'
 
 const pokemonStore = usePokemonStore()
 const pokemons = ref<Array<PokemonReference>>([])
@@ -29,6 +30,17 @@ const filteredPokemons = computed(() => {
 watchEffect(() => {
   fetchPokemons(pokemons, isLoading, isError, errorStatus, offset.value, 20)
 })
+
+// ----------AI generated--------------
+const setTagStyle = (tag: string): { background: string; color: string } => {
+  const tagObj = pokemonTags.find((pokemonTag) => pokemonTag.tag === tag)
+
+  if (tagObj) {
+    return { background: tagObj.color, color: tagObj.textColor }
+  }
+
+  return { background: 'lightblue', color: '#000000' } // default color styles
+}
 </script>
 
 <template>
@@ -71,7 +83,8 @@ watchEffect(() => {
           <div class="flex gap-2">
             <p
               v-for="tags in pokemon.types.tags"
-              class="bg-blue-300 text-xs lg:text-[13px] px-4 py-[1px] rounded"
+              :style="{ background: setTagStyle(tags).background, color: setTagStyle(tags).color }"
+              class="text-xs lg:text-[13px] px-4 py-[1px] rounded"
             >
               {{ tags }}
             </p>
