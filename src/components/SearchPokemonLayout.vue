@@ -3,7 +3,7 @@ import SpinnerComponent from '@/components/SpinnerComponent.vue'
 import { fetchPokemons } from '@/modules/fetchPokemons'
 import { usePokemonStore } from '@/stores/savedPokemonStore'
 import { computed, ref, watchEffect } from 'vue'
-import ErrorComponet from './ErrorComponet.vue'
+import ErrorComponet from './ErrorComponent.vue'
 import SearchSaveButton from './SearchSaveButton.vue'
 import { pokemonTags } from '@/assets/tags'
 
@@ -44,9 +44,8 @@ const setTagStyle = (tag: string): { background: string; color: string } => {
 </script>
 
 <template>
-  <section class="p-4 pb-10 space-y-10">
-    <ErrorComponet v-if="isError" :status="errorStatus" />
-
+  <ErrorComponet v-if="isError" :status="errorStatus" />
+  <section class="flex-1 p-4 pb-10 space-y-10">
     <form v-if="!isError" class="space-x-2 flex">
       <input
         v-model="input"
@@ -94,6 +93,7 @@ const setTagStyle = (tag: string): { background: string; color: string } => {
     </ul>
     <div class="flex justify-center">
       <button
+        v-if="pokemons.length !== 0 && !isLoading && !isError"
         class="bg-[#36c6ff] px-4 py-[12px] text-white font-bold rounded cursor-pointer outline-none lg:hover:shadow-md"
         @click="(offset += 20)"
       >
