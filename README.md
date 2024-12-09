@@ -1,39 +1,53 @@
-# Pokemon API
+# Pokemon API Project
 
-This template should help get you started developing with Vue 3 in Vite.
+This project is a web application that allows users to search and save their favorite Pokémon. The application uses the Pokémon API to fetch data and display it in a user-friendly interface.
 
-## Recommended IDE Setup
+## Features
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Search for Pokémon by name
+- Display Pokémon information, including name, image, and types
+- Save favorite Pokémon to a list
+- View saved Pokémon in a separate section
+- Load more Pokémon on demand
 
-## Type Support for `.vue` Imports in TS
+## Technical Details
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Built using Vue 3 and Vite
+- Uses the Pokémon API to fetch data
+- Stores saved Pokémon in local storage
+- Uses Pinia for state management
 
-## Customize configuration
+## Getting Started
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+Clone the repository:
 
-## Project Setup
+```bash
+git clone https://github.com/{your-username}/pokemon-api-project.git`
+```
 
-```sh
+Install dependencies:
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+Start the development server:
 
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Build and Deployment
 
-```sh
-npm run build
-```
+1. Build the application: `npm run build`
+2. Deploy the application to your preferred hosting platform
 
-### Lint with [ESLint](https://eslint.org/)
+## API Documentation
 
-```sh
-npm run lint
-```
+The Pokémon API is used to fetch data for this application. The API documentation can be found at [https://pokeapi.co/docs/v2](https://pokeapi.co/docs/v2).
+
+## Documentation Links
+
+- Vue 3: [https://vuejs.org/](https://vuejs.org/)
+- Vite: [https://vitejs.dev/](https://vitejs.dev/)
+- Pinia: [https://pinia.vuejs.org/](https://pinia.vuejs.org/)
