@@ -22,7 +22,7 @@ This project is a web application that allows users to search and save their fav
 Clone the repository:
 
 ```bash
-git clone https://github.com/{your-username}/pokemon-api-project.git`
+git clone https://github.com/FriceIce/pokemon-api-project.git`
 ```
 
 Install dependencies:
